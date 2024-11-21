@@ -54,7 +54,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       confirmPasswordErrorText =
           confirmPassword == null || confirmPassword!.isEmpty
               ? 'Please confirm your password'
-              : null;
+              : 'l';
+
+      print(confirmPasswordErrorText);
 
       confirmPasswordErrorText =
           confirmPassword != null && password != confirmPassword
@@ -65,9 +67,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           passwordErrorText != null ||
           confirmPasswordErrorText != null;
     });
-    if (message != null &&
-        !(message.toLowerCase().contains('email') ||
-            message.toLowerCase().contains('password'))) {
+    if (message != null && !_buttonDisable) {
+      message = message.toLowerCase().contains('network')
+          ? 'Please check your network connection'
+          : "Something went wrong!";
       Fluttertoast.showToast(
         msg: message,
         gravity: ToastGravity.TOP,
@@ -153,8 +156,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       validateFields();
                       if (_buttonDisable == false) {
                         // Go to login screen
-                        // TODO: Implement user registration auth function
-
                         try {
                           UserCredential user = await FirebaseAuth.instance
                               .createUserWithEmailAndPassword(
@@ -185,7 +186,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           );
                         }
                       }
-                      _inProgress = false;
+                      setState(() {
+                        _inProgress = false;
+                      });
                     },
                   ),
                 ],
