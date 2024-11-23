@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'login_screen.dart';
 
 FirebaseFirestore db = FirebaseFirestore.instance;
+User? user = FirebaseAuth.instance.currentUser;
 
 class ChatScreeen extends StatefulWidget {
   static const id = 'chat_screen';
@@ -18,7 +19,6 @@ class ChatScreeen extends StatefulWidget {
 class _ChatScreeenState extends State<ChatScreeen> {
   bool _isLoggedIn = false;
   String? message;
-  User? user;
   TextEditingController textFieldController = TextEditingController();
   // Stream messageStream = db.collection('chat_records').snapshots();
 
@@ -32,7 +32,6 @@ class _ChatScreeenState extends State<ChatScreeen> {
   }
 
   void getLoggedInUser() {
-    user = FirebaseAuth.instance.currentUser;
     setState(() {
       _isLoggedIn = user != null;
     });
@@ -102,7 +101,7 @@ class _ChatScreeenState extends State<ChatScreeen> {
                   'World',
                   style: kSendButtonTextStyle,
                 ),
-                TextBoxes(),
+                TextBoxesListView(),
                 Container(
                   decoration: kMessageContainerDecoration,
                   child: Row(
@@ -146,61 +145,19 @@ class _ChatScreeenState extends State<ChatScreeen> {
   }
 }
 
-class TextBoxes extends StatefulWidget {
-  const TextBoxes({super.key});
+class TextBoxesListView extends StatefulWidget {
+  const TextBoxesListView({super.key});
 
   @override
-  State<TextBoxes> createState() => _TextBoxesState();
+  State<TextBoxesListView> createState() => _TextBoxesListViewState();
 }
 
-class _TextBoxesState extends State<TextBoxes> {
+class _TextBoxesListViewState extends State<TextBoxesListView> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: db.collection('chat_records').snapshots(),
+      stream: db.collection('chat_records').orderBy('timestamp').snapshots(),
       builder: (BuildContext context, snapshot) {
-        List<Widget> _data = [];
-        var messages = snapshot.data!;
-        for (var value in messages!.docs) {
-          var data = value.data() as Map<String, dynamic>;
-          final text = data['message'];
-          final sender = data['user'];
-
-          _data.add(
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 9.0),
-                    child: Text(
-                      sender,
-                      style: TextStyle(color: Colors.blueGrey),
-                    ),
-                  ),
-                  Material(
-                    elevation: 5.0,
-                    borderRadius: BorderRadius.circular(25.0),
-                    color: Colors.lightBlueAccent,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8, horizontal: 35),
-                      child: Text(
-                        text,
-                        style: TextStyle(
-                          fontSize: 25.0,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-
         if (snapshot.hasError) {
           return const Text('Something went wrong');
         }
@@ -209,12 +166,82 @@ class _TextBoxesState extends State<TextBoxes> {
           return const Text("Loading");
         }
 
+        List<Widget> _data = [];
+        var messages = snapshot.data!;
+        for (var value in messages.docs) {
+          var data = value.data() as Map<String, dynamic>;
+          final text = data['message'];
+          final sender = data['user'];
+
+          _data.add(
+            TextBubble(sender: sender, text: text),
+          );
+        }
         return Expanded(
           child: ListView(
             children: _data,
           ),
         );
       },
+    );
+  }
+}
+
+class TextBubble extends StatelessWidget {
+  TextBubble({
+    super.key,
+    required this.sender,
+    required this.text,
+  });
+
+  final String sender;
+  final String text;
+  late Color color =
+      user!.email == sender ? Colors.lightBlueAccent : Colors.blueGrey;
+  late BorderRadius senderRadius = BorderRadius.only(
+      topLeft: Radius.circular(25),
+      topRight: Radius.zero,
+      bottomLeft: Radius.circular(25),
+      bottomRight: Radius.circular(25));
+  late BorderRadius receiverRadius = BorderRadius.only(
+      topRight: Radius.circular(25),
+      topLeft: Radius.zero,
+      bottomLeft: Radius.circular(25),
+      bottomRight: Radius.circular(25));
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: user!.email == sender
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 9.0),
+            child: Text(
+              sender.split('@')[0].capitalize(),
+              style: TextStyle(color: Colors.blueGrey),
+            ),
+          ),
+          Material(
+            elevation: 5.0,
+            borderRadius: user!.email == sender ? senderRadius : receiverRadius,
+            color: color,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 13),
+              child: Text(
+                text,
+                style: TextStyle(
+                  fontSize: 15.0,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
