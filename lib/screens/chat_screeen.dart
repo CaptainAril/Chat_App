@@ -208,37 +208,48 @@ class TextBubble extends StatelessWidget {
       topLeft: Radius.zero,
       bottomLeft: Radius.circular(25),
       bottomRight: Radius.circular(25));
+  double avatarRadius = 13.0;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Column(
-        crossAxisAlignment: user!.email == sender
-            ? CrossAxisAlignment.end
-            : CrossAxisAlignment.start,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 9.0),
-            child: Text(
-              sender.split('@')[0].capitalize(),
-              style: TextStyle(color: Colors.blueGrey),
-            ),
-          ),
-          Material(
-            elevation: 5.0,
-            borderRadius: user!.email == sender ? senderRadius : receiverRadius,
-            color: color,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 13),
-              child: Text(
-                text,
-                style: TextStyle(
-                  fontSize: 15.0,
-                  color: Colors.white,
+          Column(
+            crossAxisAlignment: user!.email == sender
+                ? CrossAxisAlignment.end
+                : CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                backgroundColor: colorMap[sender[0]],
+                minRadius: avatarRadius,
+                child: Center(
+                  child: Text(
+                    sender[0].toUpperCase(),
+                    style: TextStyle(color: Colors.white70),
+                  ),
                 ),
               ),
-            ),
+              Material(
+                elevation: 5.0,
+                borderRadius:
+                    user!.email == sender ? senderRadius : receiverRadius,
+                color: color,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 3, horizontal: 13),
+                  child: Text(
+                    text,
+                    style: TextStyle(
+                      fontSize: 15.0,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

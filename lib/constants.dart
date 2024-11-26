@@ -22,3 +22,32 @@ extension StringExtensions on String {
     return "${this[0].toUpperCase()}${this.substring(1)}";
   }
 }
+
+final Map<String, Color> colorMap = {
+  'a': Colors.red,
+  'b': Colors.blue,
+  'c': Colors.green,
+  'd': Colors.yellow,
+  'e': Colors.orange,
+  'f': Colors.purple,
+  'g': Colors.pink,
+  'h': Colors.brown,
+  'i': Colors.cyan,
+  'j': Colors.lime,
+  'k': Colors.indigo,
+  'l': Colors.teal,
+  'm': Colors.amber,
+  'n': Colors.grey,
+  'o': Colors.blueGrey,
+  'p': Colors.lightBlue,
+  'q': Colors.lightGreen,
+  'r': Colors.limeAccent,
+  's': Colors.orangeAccent,
+  't': Colors.deepOrange,
+  'u': Colors.deepPurple,
+  'v': Colors.deepOrangeAccent,
+  'w': Colors.pinkAccent,
+  'x': Colors.purpleAccent,
+  'y': Colors.tealAccent,
+  'z': Colors.yellowAccent,
+};
